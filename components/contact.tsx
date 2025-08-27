@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,14 +62,35 @@ export function Contact() {
     urgent: false,
   })
 
+  const [uploadedImages, setUploadedImages] = useState<File[]>([])
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
+      // Convert images to base64 for email
+      const imageAttachments = await Promise.all(
+        uploadedImages.map(async (file, index) => {
+          return new Promise<{ filename: string; content: string; contentType: string }>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+              const base64Content = (e.target?.result as string).split(',')[1]
+              resolve({
+                filename: `contact_image_${index + 1}.${file.name.split('.').pop()}`,
+                content: base64Content,
+                contentType: file.type
+              })
+            }
+            reader.readAsDataURL(file)
+          })
+        })
+      )
+
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
@@ -78,6 +99,7 @@ export function Contact() {
         body: JSON.stringify({
           type: "contact",
           ...formData,
+          attachments: imageAttachments,
         }),
       })
 
@@ -94,6 +116,8 @@ export function Contact() {
           problem: "",
           urgent: false,
         })
+        setUploadedImages([])
+        setImagePreviewUrls([])
         setTimeout(() => setIsSubmitted(false), 5000)
       } else {
         alert("Failed to submit form. Please try again.")
@@ -108,6 +132,34 @@ export function Contact() {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length > 0) {
+      const newImages = files.slice(0, 5 - uploadedImages.length) // Max 5 images
+      setUploadedImages(prev => [...prev, ...newImages])
+      
+      // Create preview URLs
+      newImages.forEach(file => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          setImagePreviewUrls(prev => [...prev, e.target?.result as string])
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index))
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current && uploadedImages.length < 5) {
+      fileInputRef.current.click()
+    }
   }
 
   return (
@@ -305,11 +357,61 @@ export function Contact() {
 
                   {/* File Upload */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-3">Upload Photos (Optional)</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors">
+                    <label className="block text-sm font-medium text-gray-900 mb-3">
+                      Upload Photos (Optional) - Max 5 images
+                    </label>
+                    
+                    {/* Hidden file input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    
+                    {/* Upload button */}
+                    <div 
+                      onClick={triggerFileInput}
+                      className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                    >
                       <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                      <p className="text-sm text-gray-600">Click to upload photos of the issue or drag and drop</p>
+                      <p className="text-sm text-gray-600">
+                        {uploadedImages.length === 0 
+                          ? "Click to upload photos of the issue or drag and drop" 
+                          : `Uploaded ${uploadedImages.length}/5 images`
+                        }
+                      </p>
+                      {uploadedImages.length < 5 && (
+                        <p className="text-xs text-gray-500 mt-2">Click to add more photos</p>
+                      )}
                     </div>
+
+                    {/* Image previews */}
+                    {imagePreviewUrls.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-900 mb-3">Uploaded Photos:</p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {imagePreviewUrls.map((url, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={url}
+                                alt={`Preview ${index + 1}`}
+                                className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Urgent Checkbox */}

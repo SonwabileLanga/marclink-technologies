@@ -2,12 +2,12 @@ import { type NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
 
 // Initialize Resend (more reliable than SMTP)
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend('re_Qh7XM1dz_Q1S2duxoytb5Nct7JbqUgaTt')
 
 // Fallback to Nodemailer for SMTP if Resend is not configured
 import nodemailer from "nodemailer"
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: Number.parseInt(process.env.SMTP_PORT || "587"),
   secure: false,
@@ -24,11 +24,22 @@ export async function POST(request: NextRequest) {
 
     let subject = ""
     let htmlContent = ""
-    const recipientEmail = "langasonwabile1993@gmail.com" // Updated to your email
+    const recipientEmail = "safariemanuel60@gmail.com" // Admin email for all form submissions
     const fromEmail = "onboarding@resend.dev"
 
     if (type === "contact") {
       subject = `🔧 New Contact Form - ${formData.name}`
+      
+      const photoSection =
+        attachments && attachments.length > 0
+          ? `
+        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8b5cf6;">
+          <h3 style="color: #1e293b; margin-top: 0;">📸 Issue Photos (${attachments.length} attached)</h3>
+          <p style="color: #6b7280;">Customer has provided ${attachments.length} photo${attachments.length > 1 ? "s" : ""} of the issue. Check email attachments for images.</p>
+        </div>
+      `
+          : ""
+
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
           <div style="background: #2563eb; color: white; padding: 20px; text-align: center;">
@@ -51,6 +62,8 @@ export async function POST(request: NextRequest) {
               <p><strong>Device Model:</strong> ${formData.deviceModel || "Not specified"}</p>
               <p><strong>Urgent:</strong> ${formData.urgent ? "🚨 YES - Priority Request" : "No"}</p>
             </div>
+
+            ${photoSection}
 
             <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
               <h3 style="color: #1e293b; margin-top: 0;">Problem Description</h3>
@@ -154,7 +167,7 @@ export async function POST(request: NextRequest) {
       : []
 
     // Try Resend first (more reliable)
-    if (process.env.RESEND_API_KEY) {
+    if (true) { // Always use Resend since we have the API key
       try {
         const emailData: any = {
           from: fromEmail,
