@@ -103,7 +103,7 @@ export function Footer() {
                 <Linkedin className="w-5 h-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
               </div>
 
-              <div className="text-gray-400 text-sm">Built with ❤️ in Mossel Bay</div>
+              <div className="text-gray-400 text-sm">Built in Mossel Bay</div>
             </div>
           </div>
         </div>

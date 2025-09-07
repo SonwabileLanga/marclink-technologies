@@ -1,3 +1,4 @@
+# Minimal Netlify Configuration - No plugins, clean build
 [build]
   command = "pnpm install && pnpm run build"
   publish = ".next"
@@ -7,25 +8,7 @@
   NPM_VERSION = "9"
   PNPM_VERSION = "8"
 
-# Build settings for Next.js
-[build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-[build.processing.images]
-  compress = true
-
-# Redirects for Next.js
+# Redirects for Next.js SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

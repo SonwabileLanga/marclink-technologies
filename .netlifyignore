@@ -1,0 +1,29 @@
+# Exclude development files
+node_modules/
+.next/
+.env*
+*.log
+
+# Exclude git files
+.git/
+.gitignore
+
+# Exclude build artifacts
+dist/
+build/
+
+# Exclude test files
+__tests__/
+*.test.*
+*.spec.*
+
+# Exclude documentation
+README.md
+docs/
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
