@@ -2,25 +2,25 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
-import { parseCsv, type PriceRow } from "@/components/price-utils";
+import { getAllProductsSorted } from "@/data/products";
 import { CartProvider, useCart } from "@/components/CartContext";
 
 function ShopInner(): JSX.Element {
-  const [rows, setRows] = useState<PriceRow[]>([]);
+  const [rows, setRows] = useState(getAllProductsSorted());
   const [brand, setBrand] = useState<string>("");
   const [q, setQ] = useState<string>("");
   const { add, items, total } = useCart();
 
   useEffect(() => {
-    fetch("/prices.csv").then((r) => r.text()).then((t) => setRows(parseCsv(t))).catch(() => setRows([]));
+    setRows(getAllProductsSorted());
   }, []);
 
-  const filtered = useMemo<PriceRow[]>(() => {
+  const filtered = useMemo(() => {
     const b = brand.trim().toLowerCase();
     const query = q.trim().toLowerCase();
     return rows
-      .filter((r: PriceRow) => (b ? r.brand.toLowerCase().includes(b) : true))
-      .filter((r: PriceRow) => (query ? `${r.model} ${r.type}`.toLowerCase().includes(query) : true));
+      .filter((r) => (b ? r.brand.toLowerCase().includes(b) : true))
+      .filter((r) => (query ? `${r.model} ${r.type}`.toLowerCase().includes(query) : true));
   }, [rows, brand, q]);
 
   return (
@@ -52,15 +52,15 @@ function ShopInner(): JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r: PriceRow, idx: number) => (
+            {filtered.map((r: any, idx: number) => (
               <tr key={`${r.brand}-${r.model}-${idx}`} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                 <td className="px-3 py-2 whitespace-nowrap">{r.brand}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{r.model}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{r.type}</td>
-                <td className="px-3 py-2 text-right">R{(r.price + 30).toFixed(0)}</td>
+                <td className="px-3 py-2 text-right">R{(r.basePrice + 30).toFixed(0)}</td>
                 <td className="px-3 py-2 text-right">
                   <button
-                    onClick={() => add({ brand: r.brand, model: r.model, type: r.type, price: r.price + 30 })}
+                    onClick={() => add({ brand: r.brand, model: r.model, type: r.type, price: r.basePrice + 30 })}
                     className="border rounded px-3 py-1 bg-white hover:bg-gray-50"
                   >
                     Add to cart

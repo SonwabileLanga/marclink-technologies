@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import type { ChangeEvent, JSX } from "react";
 import { parseCsv, rowsToCsv, type PriceRow } from "./price-utils";
 
 type SortKey = "brand" | "model" | "type" | "price" | "updated";
 
-export default function PriceManager(): JSX.Element {
+export default function PriceManager() {
   const [rows, setRows] = useState<PriceRow[]>([]);
   const [addRand, setAddRand] = useState<number>(30);
   const [query, setQuery] = useState<string>("");
@@ -37,7 +36,7 @@ export default function PriceManager(): JSX.Element {
     return sorted;
   }, [rows, brand, query, sortKey, sortAsc, addRand]);
 
-  function onUpload(e: ChangeEvent<HTMLInputElement>): void {
+  function onUpload(e: any): void {
     const file = e.target.files?.[0];
     if (!file) return;
     file.text().then((text: string) => setRows(parseCsv(text)));
