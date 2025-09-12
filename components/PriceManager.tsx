@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import type { ChangeEvent, JSX } from "react";
 import { parseCsv, rowsToCsv, type PriceRow } from "./price-utils";
 
 type SortKey = "brand" | "model" | "type" | "price" | "updated";
@@ -14,12 +15,12 @@ export default function PriceManager(): JSX.Element {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const filtered = useMemo(() => {
+  const filtered = useMemo<PriceRow[]>(() => {
     const q = query.trim().toLowerCase();
     const b = brand.trim().toLowerCase();
-    let out = rows;
-    if (b) out = out.filter((r) => r.brand.toLowerCase().includes(b));
-    if (q) out = out.filter((r) => `${r.model} ${r.type}`.toLowerCase().includes(q));
+    let out: PriceRow[] = rows;
+    if (b) out = out.filter((r: PriceRow) => r.brand.toLowerCase().includes(b));
+    if (q) out = out.filter((r: PriceRow) => `${r.model} ${r.type}`.toLowerCase().includes(q));
     const sorted = [...out].sort((a, b2) => {
       let av: number | string = "";
       let bv: number | string = "";
@@ -36,10 +37,10 @@ export default function PriceManager(): JSX.Element {
     return sorted;
   }, [rows, brand, query, sortKey, sortAsc, addRand]);
 
-  function onUpload(e: React.ChangeEvent<HTMLInputElement>): void {
+  function onUpload(e: ChangeEvent<HTMLInputElement>): void {
     const file = e.target.files?.[0];
     if (!file) return;
-    file.text().then((text) => setRows(parseCsv(text)));
+    file.text().then((text: string) => setRows(parseCsv(text)));
   }
 
   function clearAll(): void {
@@ -101,7 +102,7 @@ export default function PriceManager(): JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r, idx) => (
+            {filtered.map((r: PriceRow, idx: number) => (
               <tr key={`${r.brand}-${r.model}-${idx}`} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                 <td className="px-3 py-2 whitespace-nowrap">{r.brand}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{r.model}</td>

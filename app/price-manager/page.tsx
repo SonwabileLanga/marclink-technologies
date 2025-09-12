@@ -1,7 +1,6 @@
-import React from "react";
 import PriceManager from "@/components/PriceManager";
 
-export default function Page(): JSX.Element {
+export default function Page() {
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-2">Price Manager</h1>

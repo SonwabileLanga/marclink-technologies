@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { JSX } from "react";
 import { parseCsv, type PriceRow } from "@/components/price-utils";
 
 export default function Page(): JSX.Element {
@@ -15,12 +16,12 @@ export default function Page(): JSX.Element {
       .catch(() => setRows([]));
   }, []);
 
-  const filtered = useMemo(() => {
+  const filtered = useMemo<PriceRow[]>(() => {
     const b = brand.trim().toLowerCase();
     const query = q.trim().toLowerCase();
-    let out = rows;
-    if (b) out = out.filter((r) => r.brand.toLowerCase().includes(b));
-    if (query) out = out.filter((r) => `${r.model} ${r.type}`.toLowerCase().includes(query));
+    let out: PriceRow[] = rows;
+    if (b) out = out.filter((r: PriceRow) => r.brand.toLowerCase().includes(b));
+    if (query) out = out.filter((r: PriceRow) => `${r.model} ${r.type}`.toLowerCase().includes(query));
     return out;
   }, [rows, brand, q]);
 
@@ -43,7 +44,7 @@ export default function Page(): JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r, idx) => (
+            {filtered.map((r: PriceRow, idx: number) => (
               <tr key={`${r.brand}-${r.model}-${idx}`} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                 <td className="px-3 py-2 whitespace-nowrap">{r.brand}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{r.model}</td>

@@ -54,6 +54,12 @@ export function Header() {
             <a href="#contact" className="hover:text-blue-200 transition-colors font-medium">
               Contact
             </a>
+            <Link href="/shop" className="hover:text-blue-200 transition-colors font-medium">
+              Shop
+            </Link>
+            <Link href="/prices" className="hover:text-blue-200 transition-colors font-medium">
+              Prices
+            </Link>
             <Link href="/repair-form">
               <Button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6">Book Repair</Button>
             </Link>
@@ -80,6 +86,12 @@ export function Header() {
               <a href="#contact" className="hover:text-blue-200 transition-colors font-medium">
                 Contact
               </a>
+              <Link href="/shop" className="hover:text-blue-200 transition-colors font-medium">
+                Shop
+              </Link>
+              <Link href="/prices" className="hover:text-blue-200 transition-colors font-medium">
+                Prices
+              </Link>
               <Link href="/repair-form">
                 <Button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold w-full">Book Repair</Button>
               </Link>
